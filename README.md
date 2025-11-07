@@ -23,6 +23,7 @@ project/
 │   ├── locales/         # Локализированные сообщения
 │   ├── config.py        # Конфигурация приложения
 │   └── main.py          # Точка входа
+├── migrations/          # SQL миграции базы данных
 ├── requirements.txt     # Зависимости проекта
 ├── .env.example         # Пример файла конфигурации
 └── README.md           # Документация
@@ -68,6 +69,14 @@ cp .env.example .env
 - `YOOKASSA_SHOP_ID` - ID магазина в Yookassa
 - `YOOKASSA_API_KEY` - API ключ Yookassa
 - `WEBHOOK_URL` - URL вашего сервера для webhook (для production)
+
+6. **Применение миграций базы данных:**
+Примените начальную миграцию для создания таблиц:
+```bash
+psql $DATABASE_URL -f migrations/0001_init.sql
+```
+
+Подробная документация по миграциям: [migrations/README.md](migrations/README.md)
 
 ## Запуск
 
