@@ -1,0 +1,78 @@
+# Виртуальное окружение
+venv/
+env/
+ENV/
+.venv/
+
+# Переменные окружения
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Тестирование
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Логи
+*.log
+logs/
+
+# Базы данных
+*.db
+*.sqlite
+*.sqlite3
+
+# Кеш
+.cache/
+*.cache
+
+# Временные файлы
+.tmp/
+tmp/
+*.tmp
+
+# Маки OSX
+.AppleDouble
+.LSOverride
+
+# Майкрософт Windows
+Thumbs.db
+ehthumbs.db
