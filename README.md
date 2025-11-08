@@ -29,15 +29,87 @@ project/
 └── README.md           # Документация
 ```
 
+## Быстрый старт с Docker
+
+1. **Проверка окружения:**
+```bash
+make check-docker
+```
+
+2. **Создание конфигурации:**
+```bash
+make env
+# Отредактируйте .env файл с вашими токенами
+```
+
+3. **Запуск всех сервисов:**
+```bash
+make up
+```
+
+4. **Применение миграций:**
+```bash
+make migrate
+```
+
+5. **Проверка статуса:**
+```bash
+make status
+```
+
 ## Установка
 
 ### Требования
-- Python 3.11 или выше
+- Python 3.10 или выше
+- Docker и Docker Compose (для запуска в контейнерах)
 - pip (менеджер пакетов Python)
 - PostgreSQL (опционально, для использования БД)
 - Redis (опционально, для кеширования)
 
 ### Шаги установки
+
+#### Вариант 1: Установка в Docker (рекомендуется)
+
+1. **Клонирование репозитория:**
+```bash
+git clone <repository_url>
+cd project
+```
+
+2. **Создание файла конфигурации:**
+```bash
+make env
+```
+
+3. **Заполнение переменных окружения:**
+Отредактируйте файл `.env` и установите следующие значения:
+- `BOT_TOKEN` - токен вашего Telegram бота (получить на @BotFather)
+- `YOOKASSA_SHOP_ID` - ID магазина в Yookassa
+- `YOOKASSA_API_KEY` - API ключ Yookassa
+- `WEBHOOK_URL` - URL вашего сервера для webhook (для production)
+- `ADMIN_ID` - Telegram ID администратора (для админ-команд)
+
+4. **Запуск сервисов:**
+```bash
+make up
+```
+
+Это запустит три сервиса:
+- PostgreSQL базу данных
+- Redis для кеширования
+- Telegram бот
+
+5. **Применение миграций:**
+```bash
+make migrate
+```
+
+6. **Проверка статуса:**
+```bash
+make status
+```
+
+#### Вариант 2: Локальная установка
 
 1. **Клонирование репозитория:**
 ```bash
@@ -53,7 +125,7 @@ source venv/bin/activate  # На Windows: venv\Scripts\activate
 
 3. **Установка зависимостей:**
 ```bash
-pip install -r requirements.txt
+make install
 ```
 
 4. **Создание файла конфигурации:**
@@ -64,35 +136,115 @@ cp .env.example .env
 5. **Заполнение переменных окружения:**
 Отредактируйте файл `.env` и установите следующие значения:
 - `BOT_TOKEN` - токен вашего Telegram бота (получить на @BotFather)
-- `DATABASE_URL` - URL для подключения к PostgreSQL (если используется)
-- `REDIS_URL` - URL для подключения к Redis (если используется)
+- `DATABASE_URL` - URL для подключения к PostgreSQL
+- `REDIS_URL` - URL для подключения к Redis
 - `YOOKASSA_SHOP_ID` - ID магазина в Yookassa
 - `YOOKASSA_API_KEY` - API ключ Yookassa
 - `WEBHOOK_URL` - URL вашего сервера для webhook (для production)
 
 6. **Применение миграций базы данных:**
-Примените начальную миграцию для создания таблиц:
 ```bash
-psql $DATABASE_URL -f migrations/0001_init.sql
+make migrate-local
 ```
 
 Подробная документация по миграциям: [migrations/README.md](migrations/README.md)
 
 ## Запуск
 
-### Режим разработки (Polling)
+### Запуск в Docker
+
+#### Режим разработки (Polling)
+```bash
+# Запуск всех сервисов
+make up
+
+# Просмотр логов
+make logs
+
+# Остановка сервисов
+make down
+```
+
+#### Режим webhook (Production)
+
+1. **Настройте переменные окружения в `.env`:**
+   - `WEBHOOK_URL` - URL вашего сервера
+   - `WEBHOOK_PORT` - порт для webhook (по умолчанию 8080)
+   - `WEBHOOK_PATH` - путь для webhook (по умолчанию /webhook)
+
+2. **Запуск сервисов:**
+```bash
+make up
+```
+
+3. **Проверка работы webhook:**
+```bash
+# Проверка доступности порта
+curl http://localhost:8080/webhook
+```
+
+### Локальный запуск
+
+#### Режим разработки (Polling)
 
 ```bash
 python -m src.main
 ```
 
-### Режим webhook (Production)
+#### Режим webhook (Production)
 
 1. Отредактируйте `src/main.py` и замените `await bot_manager.start_polling()` на `await bot_manager.start_webhook_server()`
 
 2. Запустите бота:
 ```bash
 python -m src.main
+```
+
+## Полезные команды Docker
+
+### Управление сервисами
+```bash
+# Пересборка и запуск
+make rebuild
+
+# Перезапуск
+make restart
+
+# Просмотр статуса
+make status
+
+# Вход в контейнер бота
+make shell
+
+# Применение миграций
+make migrate
+```
+
+### Просмотр логов
+```bash
+# Все логи
+docker compose logs
+
+# Логи только бота
+docker compose logs -f bot
+
+# Логи PostgreSQL
+docker compose logs -f postgres
+
+# Логи Redis
+docker compose logs -f redis
+```
+
+### Отладка
+```bash
+# Вход в контейнер для отладки
+docker compose exec bot bash
+
+# Подключение к базе данных
+docker compose exec postgres psql -U bot_user -d bot_db
+
+# Подключение к Redis
+docker compose exec redis redis-cli
 ```
 
 ## Конфигурация
@@ -155,6 +307,8 @@ python -m src.main
 
 **Интеграция YooKassa:** [YOOKASSA_INTEGRATION_README.md](YOOKASSA_INTEGRATION_README.md)
 
+**Подробная документация по Docker:** [DOCKER_README.md](DOCKER_README.md)
+
 **Тестирование платежей:** [YOOKASSA_TESTING_GUIDE.md](YOOKASSA_TESTING_GUIDE.md)
 
 ### Добавление новых команд
@@ -201,7 +355,35 @@ router.include_router(my_handlers_router)
 ### Установка зависимостей для разработки
 
 ```bash
-pip install -r requirements.txt
+make deps
+```
+
+### Проверка кода
+
+Проект использует следующие инструменты для проверки качества кода:
+
+```bash
+# Полная проверка кода
+make check
+
+# Отдельные проверки
+make lint          # flake8
+make type-test     # mypy
+make format-check  # black и isort
+```
+
+### Форматирование кода
+
+```bash
+# Форматирование кода
+make format
+```
+
+### Тестирование
+
+```bash
+# Запуск тестов
+make test
 ```
 
 ### Запуск с горячей перезагрузкой
@@ -211,6 +393,24 @@ pip install -r requirements.txt
 ```bash
 pip install watchdog
 python -m watchdog.auto_reload src/main.py
+```
+
+### Разработка в Docker
+
+Для разработки в контейнере используйте:
+
+```bash
+# Запуск в режиме разработки
+make up
+
+# Вход в контейнер для разработки
+make shell
+
+# Просмотр логов в реальном времени
+make logs
+
+# Перезапуск после изменений
+make restart
 ```
 
 ## Лицензия

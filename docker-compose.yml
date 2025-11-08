@@ -1,0 +1,81 @@
+services:
+  # Сервис PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: telegram_bot_postgres
+    environment:
+      POSTGRES_DB: bot_db
+      POSTGRES_USER: bot_user
+      POSTGRES_PASSWORD: bot_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bot_user -d bot_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bot_network
+
+  # Сервис Redis
+  redis:
+    image: redis:7-alpine
+    container_name: telegram_bot_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - bot_network
+
+  # Сервис бота
+  bot:
+    build: .
+    container_name: telegram_bot
+    restart: unless-stopped
+    environment:
+      # Telegram Bot
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - WEBHOOK_PATH=${WEBHOOK_PATH:-/webhook}
+      - ADMIN_ID=${ADMIN_ID:-0}
+      
+      # Базы данных
+      - DATABASE_URL=postgresql://bot_user:bot_password@postgres:5432/bot_db
+      - REDIS_URL=redis://redis:6379/0
+      
+      # Yookassa
+      - YOOKASSA_SHOP_ID=${YOOKASSA_SHOP_ID}
+      - YOOKASSA_API_KEY=${YOOKASSA_API_KEY}
+      
+      # Приложение
+      - DEBUG=${DEBUG:-False}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - WEBHOOK_PORT=${WEBHOOK_PORT:-8080}
+    ports:
+      - "${WEBHOOK_PORT:-8080}:${WEBHOOK_PORT:-8080}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - bot_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  bot_network:
+    driver: bridge
