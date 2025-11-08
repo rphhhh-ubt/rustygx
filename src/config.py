@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     bot_token: str
     webhook_url: str
     webhook_path: str = "/webhook"
+    admin_id: int = 0
 
     # Базы данных
     database_url: str

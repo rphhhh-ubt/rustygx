@@ -10,6 +10,7 @@ from .reading_repository import ReadingRepository
 from .payment_repository import PaymentRepository
 from .step_repository import StepRepository
 from .question_repository import QuestionRepository
+from .scenario_service import ScenarioService
 
 __all__ = [
     # Database
@@ -19,4 +20,6 @@ __all__ = [
     # Repositories
     "UserRepository", "ReadingRepository", "PaymentRepository", 
     "StepRepository", "QuestionRepository",
+    # Services
+    "ScenarioService",
 ]
