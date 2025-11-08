@@ -12,6 +12,7 @@ from src.config import settings
 from src.handlers import router
 from src.locales import messages
 from src.services import init_database, close_database
+from src.services.payments import yookassa_webhook_handler
 
 # Настройка логирования
 logging.basicConfig(
@@ -89,10 +90,13 @@ class BotManager:
         finally:
             await self.bot.session.close()
 
-    async def start_webhook_server(self, host: str = "0.0.0.0", port: int = 8080) -> None:
+    async def start_webhook_server(self, host: str = "0.0.0.0", port: int = None) -> None:
         """Запуск webhook сервера."""
         if not self.bot or not self.dp:
             raise RuntimeError("Бот не инициализирован")
+
+        if port is None:
+            port = settings.webhook_port
 
         try:
             logger.info(f"Запуск webhook сервера на {host}:{port}...")
@@ -100,11 +104,14 @@ class BotManager:
             # Создание приложения
             self.app = web.Application()
 
-            # Создание обработчика для webhook
+            # Создание обработчика для Telegram webhook
             SimpleRequestHandler(
                 dispatcher=self.dp,
                 bot=self.bot,
             ).register(self.app, path=settings.webhook_path)
+
+            # Регистрация обработчика для YooKassa webhook
+            self.app.router.add_post('/yookassa_webhook', yookassa_webhook_handler)
 
             # Настройка приложения
             setup_application(self.app, self.dp, self.bot)
@@ -116,6 +123,8 @@ class BotManager:
             await site.start()
 
             logger.info(f"Webhook сервер запущен на http://{host}:{port}")
+            logger.info(f"Telegram webhook: {settings.webhook_path}")
+            logger.info("YooKassa webhook: /yookassa_webhook")
 
             # Создание бесконечного цикла для сохранения сервера в работе
             await asyncio.Event().wait()

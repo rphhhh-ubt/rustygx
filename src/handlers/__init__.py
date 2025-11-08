@@ -5,6 +5,7 @@ from aiogram import Router
 from .commands import router as commands_router
 from .scenarios import router as scenarios_router
 from .admin import router as admin_router
+from .payments import router as payments_router
 
 # Основной маршрутизатор
 router = Router()
@@ -13,3 +14,4 @@ router = Router()
 router.include_router(commands_router)
 router.include_router(scenarios_router)
 router.include_router(admin_router)
+router.include_router(payments_router)

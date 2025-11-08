@@ -109,6 +109,7 @@ python -m src.main
 | REDIS_URL | URL подключения к Redis | Нет |
 | WEBHOOK_URL | URL вашего сервера для webhook | Нет |
 | WEBHOOK_PATH | Путь для webhook (по умолчанию: /webhook) | Нет |
+| WEBHOOK_PORT | Порт webhook сервера (по умолчанию: 8080) | Нет |
 | YOOKASSA_SHOP_ID | ID магазина Yookassa | Да |
 | YOOKASSA_API_KEY | API ключ Yookassa | Да |
 | DEBUG | Режим отладки (True/False) | Нет |
@@ -132,6 +133,14 @@ python -m src.main
   - Поддерживает вопросы: текстовые, одиночный выбор (inline кнопки), множественный выбор (keyboard кнопки)
   - Поддерживает фото (image_file_id:), задержки (delay_sec:)
 
+#### Платежные команды
+
+- **`/buy`** - Показывает меню покупки платных чтений
+  - 5 чтений - 299₽
+  - 10 чтений - 499₽
+  - 20 чтений - 899₽
+- **`/payments`** - История платежей пользователя
+
 #### Администраторские команды
 
 - **`/get_photo_id`** - Получение file_id загруженного фото (только для ADMIN_ID)
@@ -143,6 +152,10 @@ python -m src.main
 **План тестирования:** [HANDLERS_TESTING_PLAN.md](HANDLERS_TESTING_PLAN.md)
 
 **Примеры использования:** [HANDLERS_EXAMPLES.md](HANDLERS_EXAMPLES.md)
+
+**Интеграция YooKassa:** [YOOKASSA_INTEGRATION_README.md](YOOKASSA_INTEGRATION_README.md)
+
+**Тестирование платежей:** [YOOKASSA_TESTING_GUIDE.md](YOOKASSA_TESTING_GUIDE.md)
 
 ### Добавление новых команд
 

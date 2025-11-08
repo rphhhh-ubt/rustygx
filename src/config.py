@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # Приложение
     debug: bool = False
     log_level: str = "INFO"
+    webhook_port: int = 8080
 
     class Config:
         env_file = ".env"
