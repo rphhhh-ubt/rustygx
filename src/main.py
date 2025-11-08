@@ -11,6 +11,7 @@ from aiohttp import web
 from src.config import settings
 from src.handlers import router
 from src.locales import messages
+from src.services import init_database, close_database
 
 # Настройка логирования
 logging.basicConfig(
@@ -32,6 +33,9 @@ class BotManager:
     async def initialize(self) -> None:
         """Инициализация бота и диспетчера."""
         logger.info("Инициализация бота...")
+
+        # Инициализация базы данных
+        await init_database()
 
         # Создание бота
         self.bot = Bot(token=settings.bot_token)
@@ -123,6 +127,10 @@ class BotManager:
         """Остановка бота."""
         if self.bot:
             await self.bot.session.close()
+        
+        # Закрытие соединений с базой данных
+        await close_database()
+        
         logger.info(messages.BOT_STOPPED)
 
 
