@@ -18,8 +18,8 @@ class ReadingRepository:
         """Создание нового чтения."""
         try:
             query = """
-                INSERT INTO readings (user_id, reading_type, reading_payload, status, completed_at)
-                VALUES ($1, $2, $3, $4, $5)
+                INSERT INTO readings (user_id, reading_type, reading_payload, status)
+                VALUES ($1, $2, $3, $4)
                 RETURNING id, user_id, reading_type, reading_payload, status, created_at, completed_at
             """
             result = await fetch_one(
@@ -27,8 +27,7 @@ class ReadingRepository:
                 reading_data.user_id,
                 reading_data.reading_type,
                 reading_data.reading_payload,
-                reading_data.status,
-                reading_data.completed_at
+                reading_data.status
             )
             
             if not result:
